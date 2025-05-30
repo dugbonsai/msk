@@ -4,7 +4,7 @@ cp /usr/lib/jvm/java-21-amazon-corretto.x86_64/lib/security/cacerts kafka_trusts
 
 # Couchbase connector
 wget https://packages.couchbase.com/clients/kafka/4.2.8/couchbase-kafka-connect-couchbase-4.2.8.zip
-aws s3 cp couchbase-kafka-connect-couchbase-4.2.8.zip s3://dbonser-msk-bucket
+aws s3 cp couchbase-kafka-connect-couchbase-4.2.8.zip s3://$1
 
 # Amazon DocumentDB connector
 cd ~
@@ -19,7 +19,7 @@ unzip msk-config-providers-0.3.1-with-dependencies.zip
 rm msk-config-providers-0.3.1-with-dependencies.zip
 cd ~
 zip -r docdb-custom-plugin.zip docdb-custom-plugin
-aws s3 cp docdb-custom-plugin.zip s3://dbonser-msk-bucket
+aws s3 cp docdb-custom-plugin.zip s3://$1
 
 # Kafka
 wget https://dlcdn.apache.org/kafka/4.0.0/kafka_2.13-4.0.0.tgz
@@ -37,4 +37,4 @@ sudo yum install -y mongodb-mongosh-shared-openssl3
 wget https://raw.githubusercontent.com/dugbonsai/msk/refs/heads/main/createTruststore.sh
 chmod 755 createTruststore.sh
 ./createTruststore.sh
-aws s3 cp docdb-truststore.jks s3://dbonser-msk-bucket
+aws s3 cp docdb-truststore.jks s3://$1
