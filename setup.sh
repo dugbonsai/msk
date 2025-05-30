@@ -66,7 +66,7 @@ wget https://raw.githubusercontent.com/dugbonsai/msk/refs/heads/main/createTrust
 echo "making createTruststore.sh executable ..." >> setup.log
 chmod 755 createTruststore.sh
 
-echo "executing createTruststore.sh executable ..." >> setup.log
+echo "executing createTruststore.sh ..." >> setup.log
 ./createTruststore.sh
 
 echo "copying docdb-truststore.jks to s3://$1 ..." >> setup.log
