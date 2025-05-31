@@ -14,17 +14,17 @@ aws s3 cp couchbase-kafka-connect-couchbase-4.2.8.zip s3://$1
 
 # Amazon DocumentDB connector
 echo "create directories for Amazon DocumentDB custom plugin ..." >> setup.log
-cd /home/e2-user
+cd /home/ec2-user
 mkdir -p docdb-custom-plugin
 mkdir -p docdb-custom-plugin/mongo-connector
 mkdir -p docdb-custom-plugin/msk-config-providers
 
 echo "downloading mongo-kafka-connect-1.15.0-all.jar ..." >> setup.log
-cd /home/e2-user/docdb-custom-plugin/mongo-connector
+cd /home/ec2-user/docdb-custom-plugin/mongo-connector
 wget https://repo1.maven.org/maven2/org/mongodb/kafka/mongo-kafka-connect/1.15.0/mongo-kafka-connect-1.15.0-all.jar
 
 echo "downloading msk-config-providers-0.3.1-with-dependencies.zip ..." >> setup.log
-cd /home/e2-user/docdb-custom-plugin/msk-config-providers
+cd /home/ec2-user/docdb-custom-plugin/msk-config-providers
 wget https://github.com/aws-samples/msk-config-providers/releases/download/r0.3.1/msk-config-providers-0.3.1-with-dependencies.zip
 
 echo "unzipping msk-config-providers-0.3.1-with-dependencies.zip ..." >> setup.log
@@ -34,7 +34,7 @@ echo "deleting msk-config-providers-0.3.1-with-dependencies.zip ..." >> setup.lo
 rm msk-config-providers-0.3.1-with-dependencies.zip
 
 echo "creating docdb-custom-plugin.zip ..." >> setup.log
-cd /home/e2-user
+cd /home/ec2-user
 zip -r docdb-custom-plugin.zip docdb-custom-plugin
 
 echo "creating docdb-custom-plugin.zip to s3://$1 ..." >> setup.log
