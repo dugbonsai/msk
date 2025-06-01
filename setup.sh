@@ -150,7 +150,7 @@ echo -e "  \"transforms.hk.type\": \"org.apache.kafka.connect.transforms.HoistFi
 echo -e "  \"config.providers\": \"s3import,ssm,sm\"," >> documentdb-sink-connector.json
 echo -e "  \"transforms.hk.field\": \"_id\"," >> documentdb-sink-connector.json
 echo -e "  \"collection\": \"<REPLACE WITH DOCUMENTDB COLLECTION NAME>\"," >> documentdb-sink-connector.json
-echo -e "  \"connection.ssl.truststore\": \"\${s3import:$2:$1/rds-truststore.jks}\"," >> documentdb-sink-connector.json
+echo -e "  \"connection.ssl.truststore\": \"\${s3import:$2:$1/docdb-truststore.jks}\"," >> documentdb-sink-connector.json
 echo -e "  \"config.providers.s3import.param.region\": \"$2\"," >> documentdb-sink-connector.json
 echo -e "  \"key.converter.schemas.enable\": \"false\"," >> documentdb-sink-connector.json
 echo -e "  \"database\": \"<REPLACE WITH DOCUMENTDB DATABASE NAME>\"," >> documentdb-sink-connector.json
