@@ -80,4 +80,37 @@ echo "sasl.mechanism=AWS_MSK_IAM " >> kafka_2.13-4.0.0/config/client.properties
 echo "sasl.jaas.config=software.amazon.msk.auth.iam.IAMLoginModule required;" >> kafka_2.13-4.0.0/config/client.properties
 echo "sasl.client.callback.handler.class=software.amazon.msk.auth.iam.IAMClientCallbackHandler" >> kafka_2.13-4.0.0/config/client.properties
 
+# create Couchbase custom plugin
+echo "creating Couchbase custom plugin JSON ..." >> setup.log
+echo "{" >> couchbase-custom-plugin.json
+echo "    'name': 'couchbase-custom-plugin'," >> couchbase-custom-plugin.json
+echo "    'contentType': 'ZIP'," >> couchbase-custom-plugin.json
+echo "    'location': {" >> couchbase-custom-plugin.json
+echo "        's3Location': {" >> couchbase-custom-plugin.json
+echo "            'bucketArn': 'arn:aws:s3:::$1'," >> couchbase-custom-plugin.json
+echo "            'fileKey': 'couchbase-kafka-connect-couchbase-4.2.8.zip'" >> couchbase-custom-plugin.json
+echo "        }" >> couchbase-custom-plugin.json
+echo "    }" >> couchbase-custom-plugin.json
+echo "}" >> couchbase-custom-plugin.json
+
+echo "creating Couchbase custom plugin ..." >> setup.log
+aws kafkaconnect create-custom-plugin --cli-input-json file://couchbase-custom-plugin.json
+
+# create DocumentDB custom plugin
+echo "creating DocumentDB custom plugin JSON ..." >> setup.log
+echo "{" >> documentdb-custom-plugin.json
+echo "    'name': 'documentdb-custom-plugin'," >> documentdb-custom-plugin.json
+echo "    'contentType': 'ZIP'," >> documentdb-custom-plugin.json
+echo "    'location': {" >> documentdb-custom-plugin.json
+echo "        's3Location': {" >> documentdb-custom-plugin.json
+echo "            'bucketArn': 'arn:aws:s3:::$1'," >> documentdb-custom-plugin.json
+echo "            'fileKey': 'docdb-custom-plugin.zip'" >> documentdb-custom-plugin.json
+echo "        }" >> documentdb-custom-plugin.json
+echo "    }" >> documentdb-custom-plugin.json
+echo "}" >> documentdb-custom-plugin.json
+
+echo "creating DocumentDB custom plugin ..." >> setup.log
+aws kafkaconnect create-custom-plugin --cli-input-json file://documentdb-custom-plugin.json
+
+# setup complete
 echo "setup complete ..." >> setup.log
