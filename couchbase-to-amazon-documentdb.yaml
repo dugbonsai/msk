@@ -40,6 +40,7 @@ Parameters:
     ConstraintDescription: Password must contain 8 to 100 characters.
   DocumentdbInstanceType:
     Type: String
+    Default: "db.r6g.xlarge"
     AllowedValues:
       - "db.r6g.large"
       - "db.r6g.xlarge"
@@ -68,6 +69,18 @@ Parameters:
   S3BucketName:
     Description: Name of S3 bucket to store resources needed for MSK
     Type: String
+  MskClusterBrokerInstanceType:
+    Description: MSK cluster broker size
+    Type: String
+    Default: "express.m7g.xlarge"
+    AllowedValues:
+      - "express.m7g.large"
+      - "express.m7g.xlarge"
+      - "express.m7g.2xlarge"
+      - "express.m7g.4xlarge"
+      - "express.m7g.8xlarge"
+      - "express.m7g.12xlarge"
+      - "express.m7g.16xlarge"
 
 Resources:
   # IAM Resources
@@ -87,6 +100,16 @@ Resources:
                 - ':'
                 - !Ref 'AWS::AccountId'
                 - ':*/*/*'
+  MigrationKafkaConnectPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: 'cfn-migration-kafkaconnect-policy'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 'kafkaconnect:CreateCustomPlugin'
+            Resource: '*'
   MigrationMskRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -107,10 +130,11 @@ Resources:
     Type: 'AWS::IAM::Role'
     Properties:
       RoleName: 'cfn-ec2-msk-role'
-      Description: "Allows EC2 instances to call MSK on your behalf."
+      Description: "Allows EC2 instances to call MSK & Kafka Connect on your behalf."
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
         - Ref: "MigrationMskPolicy"
+        - Ref: "MigrationKafkaConnectPolicy"
       MaxSessionDuration: 3600
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -140,7 +164,6 @@ Resources:
           FromPort: 22
           ToPort: 22      
           CidrIp: !Ref SshIngressIpAddress
-      
   MigrationEc2SecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     DependsOn: MigrationEc2SecurityGroup
@@ -150,7 +173,6 @@ Resources:
       FromPort: -1
       ToPort: -1
       SourceSecurityGroupId: !Ref MigrationEc2SecurityGroup
-
   MigrationEc2Instance:
     DependsOn: MigrationEc2InstanceProfile
     Type: AWS::EC2::Instance
@@ -180,8 +202,8 @@ Resources:
             echo "making setup.sh executable ..." >> setup.log
             chmod 755 setup.sh
 
-            echo "running setup.sh ${S3BucketName} ..." >> setup.log
-            ./setup.sh ${S3BucketName}
+            echo "running setup.sh ${S3BucketName} ${AWS::Region} ..." >> setup.log
+            ./setup.sh ${S3BucketName} ${AWS::Region}
 
 # CloudWatch resources
   MigrationLogGroup:
@@ -198,7 +220,6 @@ Resources:
       DBSubnetGroupName: 'cfn-migration-subnet-group'
       DBSubnetGroupDescription: 'Private subnet group for Amazon DocumentDB'
       SubnetIds: !Split [',', !Join [',', !Ref PrivateSubnets]]
-
   MigrationDocumentDBCluster:
     DependsOn:
       - MigrationDocumentDBSubnetGroup
@@ -211,7 +232,6 @@ Resources:
         MasterUserPassword: !Ref DocumentdbPassword
         VpcSecurityGroupIds:
           - !GetAtt MigrationEc2SecurityGroup.GroupId
-  
   MigrationDocumentDBPrimaryInstance:
     DependsOn: MigrationDocumentDBCluster
     Type: AWS::DocDB::DBInstance
@@ -229,7 +249,7 @@ Resources:
         SecurityGroups:
           - !GetAtt MigrationEc2SecurityGroup.GroupId
         ClientSubnets: !Split [',', !Join [',', !Ref PrivateSubnets]]
-        InstanceType: express.m7g.xlarge
+        InstanceType: !Ref MskClusterBrokerInstanceType
       ClientAuthentication:
         Sasl:
           Iam:
@@ -237,4 +257,9 @@ Resources:
       ClusterName: cfn-msk-cluster
       KafkaVersion: 3.6.0
       NumberOfBrokerNodes: 3
+
+# Outputs
+Outputs:
+  MigrationEc2SecurityGroupId:
+    Value: !GetAtt MigrationEc2SecurityGroup.GroupId
     
