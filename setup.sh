@@ -113,56 +113,56 @@ echo "creating DocumentDB custom plugin ..." >> setup.log
 aws kafkaconnect create-custom-plugin --cli-input-json file://documentdb-custom-plugin.json
 
 # create Couchbase source connector configuration
-echo "creating Couchbase source connector configuration ..." >> setup.log
-echo -e "{" >> couchbase-source-connector.json
-echo -e "  \"connector.class\": \"com.couchbase.connect.kafka.CouchbaseSourceConnector\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.persistence.polling.interval\": \"100ms\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.bootstrap.timeout\": \"10s\"," >> couchbase-source-connector.json
-echo -e "  \"tasks.max\": \"15\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.env.timeout.kvTimeout\": \"10s\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.log.document.lifecycle\": \"false\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.replicate.to\": \"NONE\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.seed.nodes\": \"couchbase://10.0.130.123\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.source.handler\": \"com.couchbase.connect.kafka.handler.source.RawJsonSourceHandler\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.enable.tls\": \"false\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.bucket\": \"<REPLACE WITH SOURCE BUCKET NAME>\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.flow.control.buffer\": \"16m\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.stream.from\": \"SAVED_OFFSET_OR_BEGINNING\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.username\": \"<REPLACE WITH COUCHBASE USERNAME>\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.event.filter\": \"com.couchbase.connect.kafka.filter.AllPassFilter\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.password\": \"<REPLACE WITH COUCHBASE PASSWORD>\"," >> couchbase-source-connector.json
-echo -e "  \"value.converter\": \"org.apache.kafka.connect.converters.ByteArrayConverter\"," >> couchbase-source-connector.json
-echo -e "  \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\"," >> couchbase-source-connector.json
-echo -e "  \"couchbase.topic\": \"couchbase-to-documentdb\"" >> couchbase-source-connector.json
-echo -e "}" >> couchbase-source-connector.json
+#echo "creating Couchbase source connector configuration ..." >> setup.log
+#echo -e "{" >> couchbase-source-connector.json
+#echo -e "  \"connector.class\": \"com.couchbase.connect.kafka.CouchbaseSourceConnector\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.persistence.polling.interval\": \"100ms\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.bootstrap.timeout\": \"10s\"," >> couchbase-source-connector.json
+#echo -e "  \"tasks.max\": \"15\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.env.timeout.kvTimeout\": \"10s\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.log.document.lifecycle\": \"false\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.replicate.to\": \"NONE\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.seed.nodes\": \"couchbase://10.0.130.123\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.source.handler\": \"com.couchbase.connect.kafka.handler.source.RawJsonSourceHandler\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.enable.tls\": \"false\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.bucket\": \"<REPLACE WITH SOURCE BUCKET NAME>\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.flow.control.buffer\": \"16m\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.stream.from\": \"SAVED_OFFSET_OR_BEGINNING\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.username\": \"<REPLACE WITH COUCHBASE USERNAME>\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.event.filter\": \"com.couchbase.connect.kafka.filter.AllPassFilter\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.password\": \"<REPLACE WITH COUCHBASE PASSWORD>\"," >> couchbase-source-connector.json
+#echo -e "  \"value.converter\": \"org.apache.kafka.connect.converters.ByteArrayConverter\"," >> couchbase-source-connector.json
+#echo -e "  \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\"," >> couchbase-source-connector.json
+#echo -e "  \"couchbase.topic\": \"couchbase-to-documentdb\"" >> couchbase-source-connector.json
+#echo -e "}" >> couchbase-source-connector.json
 
 # create DocumentDB sink connector configuration
-echo "creating DocumentDB sink connector configuration ..." >> setup.log
-echo -e "{" >> documentdb-sink-connector.json
-echo -e "  \"connector.class\": \"com.mongodb.kafka.connect.MongoSinkConnector\"," >> documentdb-sink-connector.json
-echo -e "  \"document.id.strategy.overwrite.existing\": \"true\"," >> documentdb-sink-connector.json
-echo -e "  \"connection.ssl.truststorePassword\": \"password\"," >> documentdb-sink-connector.json
-echo -e "  \"writemodel.strategy\": \"com.mongodb.kafka.connect.sink.writemodel.strategy.ReplaceOneDefaultStrategy\"," >> documentdb-sink-connector.json
-echo -e "  \"tasks.max\": \"15\"," >> documentdb-sink-connector.json
-echo -e "  \"topics\": \"couchbase-to-documentdb\"," >> documentdb-sink-connector.json
-echo -e "  \"transforms\": \"hk\"," >> documentdb-sink-connector.json
-echo -e "  \"transforms.hk.type\": \"org.apache.kafka.connect.transforms.HoistField\$Key\"," >> documentdb-sink-connector.json
-echo -e "  \"config.providers\": \"s3import,ssm,sm\"," >> documentdb-sink-connector.json
-echo -e "  \"transforms.hk.field\": \"_id\"," >> documentdb-sink-connector.json
-echo -e "  \"collection\": \"<REPLACE WITH DOCUMENTDB COLLECTION NAME>\"," >> documentdb-sink-connector.json
-echo -e "  \"connection.ssl.truststore\": \"\${s3import:$2:$1/docdb-truststore.jks}\"," >> documentdb-sink-connector.json
-echo -e "  \"config.providers.s3import.param.region\": \"$2\"," >> documentdb-sink-connector.json
-echo -e "  \"key.converter.schemas.enable\": \"false\"," >> documentdb-sink-connector.json
-echo -e "  \"database\": \"<REPLACE WITH DOCUMENTDB DATABASE NAME>\"," >> documentdb-sink-connector.json
-echo -e "  \"document.id.strategy\": \"com.mongodb.kafka.connect.sink.processor.id.strategy.ProvidedInKeyStrategy\"," >> documentdb-sink-connector.json
-echo -e "  \"connection.uri\": \"<REPLACE WITH DOCUMENTDB CONNECTION STRING>\"," >> documentdb-sink-connector.json
-echo -e "  \"value.converter.schemas.enable\": \"false\"," >> documentdb-sink-connector.json
-echo -e "  \"errors.tolerance\": \"all\"," >> documentdb-sink-connector.json
-echo -e "  \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\"," >> documentdb-sink-connector.json
-echo -e "  \"max.batch.size\": \"100\"," >> documentdb-sink-connector.json
-echo -e "  \"config.providers.s3import.class\": \"com.amazonaws.kafka.config.providers.S3ImportConfigProvider\"," >> documentdb-sink-connector.json
-echo -e "  \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\"" >> documentdb-sink-connector.json
-echo -e "}" >> documentdb-sink-connector.json
+#echo "creating DocumentDB sink connector configuration ..." >> setup.log
+#echo -e "{" >> documentdb-sink-connector.json
+#echo -e "  \"connector.class\": \"com.mongodb.kafka.connect.MongoSinkConnector\"," >> documentdb-sink-connector.json
+#echo -e "  \"document.id.strategy.overwrite.existing\": \"true\"," >> documentdb-sink-connector.json
+#echo -e "  \"connection.ssl.truststorePassword\": \"password\"," >> documentdb-sink-connector.json
+#echo -e "  \"writemodel.strategy\": \"com.mongodb.kafka.connect.sink.writemodel.strategy.ReplaceOneDefaultStrategy\"," >> documentdb-sink-connector.json
+#echo -e "  \"tasks.max\": \"15\"," >> documentdb-sink-connector.json
+#echo -e "  \"topics\": \"couchbase-to-documentdb\"," >> documentdb-sink-connector.json
+#echo -e "  \"transforms\": \"hk\"," >> documentdb-sink-connector.json
+#echo -e "  \"transforms.hk.type\": \"org.apache.kafka.connect.transforms.HoistField\$Key\"," >> documentdb-sink-connector.json
+#echo -e "  \"config.providers\": \"s3import,ssm,sm\"," >> documentdb-sink-connector.json
+#echo -e "  \"transforms.hk.field\": \"_id\"," >> documentdb-sink-connector.json
+#echo -e "  \"collection\": \"<REPLACE WITH DOCUMENTDB COLLECTION NAME>\"," >> documentdb-sink-connector.json
+#echo -e "  \"connection.ssl.truststore\": \"\${s3import:$2:$1/docdb-truststore.jks}\"," >> documentdb-sink-connector.json
+#echo -e "  \"config.providers.s3import.param.region\": \"$2\"," >> documentdb-sink-connector.json
+#echo -e "  \"key.converter.schemas.enable\": \"false\"," >> documentdb-sink-connector.json
+#echo -e "  \"database\": \"<REPLACE WITH DOCUMENTDB DATABASE NAME>\"," >> documentdb-sink-connector.json
+#echo -e "  \"document.id.strategy\": \"com.mongodb.kafka.connect.sink.processor.id.strategy.ProvidedInKeyStrategy\"," >> documentdb-sink-connector.json
+#echo -e "  \"connection.uri\": \"<REPLACE WITH DOCUMENTDB CONNECTION STRING>\"," >> documentdb-sink-connector.json
+#echo -e "  \"value.converter.schemas.enable\": \"false\"," >> documentdb-sink-connector.json
+#echo -e "  \"errors.tolerance\": \"all\"," >> documentdb-sink-connector.json
+#echo -e "  \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\"," >> documentdb-sink-connector.json
+#echo -e "  \"max.batch.size\": \"100\"," >> documentdb-sink-connector.json
+#echo -e "  \"config.providers.s3import.class\": \"com.amazonaws.kafka.config.providers.S3ImportConfigProvider\"," >> documentdb-sink-connector.json
+#echo -e "  \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\"" >> documentdb-sink-connector.json
+#echo -e "}" >> documentdb-sink-connector.json
 
 # setup complete
 echo "setup complete ..." >> setup.log
