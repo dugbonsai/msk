@@ -110,7 +110,7 @@ Resources:
         transforms.hk.type: 'org.apache.kafka.connect.transforms.HoistField$Key'
         config.providers: 's3import,ssm,sm'
         transforms.hk.field: '_id'
-        collection: '<REPLACE WITH DOCUMENTDB TARGET CLUSTER ENDPOINT>'
+        collection: '<REPLACE WITH DOCUMENTDB TARGET CLUSTER COLLECTION>'
         connection.ssl.truststore: '${s3import:us-west-2:dbonser-998564492370-cfn-testing/docdb-truststore.jks}'
         config.providers.s3import.param.region: 'us-west-2'
         key.converter.schemas.enable: 'false'
