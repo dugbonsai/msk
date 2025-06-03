@@ -147,55 +147,55 @@ Resources:
             Revision: !GetAtt DocumentDBCustomPlugin.Revision
       ServiceExecutionRoleArn: !Ref MigrationMSKRoleARN
 
-  CouchbaseSourceConnector:
-    DependsOn:
-      - CouchbaseCustomPlugin
-    Type: AWS::KafkaConnect::Connector
-    Properties:
-      Capacity:
-        ProvisionedCapacity:
-          McuCount: !Ref CouchbaseSourceMcuCount
-          WorkerCount: !Ref CouchbaseSourceMcuWorkers
-      ConnectorConfiguration:
-        connector.class: 'com.couchbase.connect.kafka.CouchbaseSourceConnector'
-        couchbase.persistence.polling.interval: '100ms'
-        couchbase.bootstrap.timeout: '10s'
-        tasks.max: '15'
-        couchbase.env.timeout.kvTimeout: '10s'
-        couchbase.log.document.lifecycle: 'false'
-        couchbase.replicate.to: 'NONE'
-        couchbase.seed.nodes: '<REPLACE WITH COUCHBASE SOURCE CLUSTER SEED NODES>'
-        couchbase.source.handler: 'com.couchbase.connect.kafka.handler.source.RawJsonSourceHandler'
-        couchbase.enable.tls: 'false'
-        couchbase.bucket: '<REPLACE WITH COUCHBASE SOURCE BUCKET>'
-        couchbase.flow.control.buffer: '16m'
-        couchbase.stream.from: 'SAVED_OFFSET_OR_BEGINNING'
-        couchbase.username: '<REPLACE WITH COUCHBASE USER USERNAME>'
-        couchbase.event.filter: 'com.couchbase.connect.kafka.filter.AllPassFilter'
-        couchbase.password: '<REPLACE WITH COUCHBASE USER PASSWORD>'
-        value.converter: 'org.apache.kafka.connect.converters.ByteArrayConverter'
-        key.converter: 'org.apache.kafka.connect.storage.StringConverter'
-        couchbase.topic: 'couchbase-to-documentdb'
-      ConnectorName: 'cfn-couchbase-source-connector'
-      KafkaCluster: 
-        ApacheKafkaCluster: 
-          BootstrapServers: !Ref BootstrapServers
-          Vpc:
-            SecurityGroups:
-              - !Ref SecurityGroupId
-            Subnets: !Split [',', !Join [',', !Ref PrivateSubnets]]
-      KafkaClusterClientAuthentication:
-        AuthenticationType: 'IAM' 
-      KafkaClusterEncryptionInTransit:
-        EncryptionType: 'TLS' 
-      KafkaConnectVersion: '2.7.1'
-      LogDelivery:
-        WorkerLogDelivery:
-          CloudWatchLogs:
-            Enabled: true
-            LogGroup: '/couchbase/migration'
-      Plugins: 
-        - CustomPlugin:
-            CustomPluginArn: !GetAtt CouchbaseCustomPlugin.CustomPluginArn
-            Revision: !GetAtt CouchbaseCustomPlugin.Revision
-      ServiceExecutionRoleArn: !Ref MigrationMSKRoleARN
+#  CouchbaseSourceConnector:
+#    DependsOn:
+#      - CouchbaseCustomPlugin
+#    Type: AWS::KafkaConnect::Connector
+#    Properties:
+#      Capacity:
+#        ProvisionedCapacity:
+#          McuCount: !Ref CouchbaseSourceMcuCount
+#          WorkerCount: !Ref CouchbaseSourceMcuWorkers
+#      ConnectorConfiguration:
+#        connector.class: 'com.couchbase.connect.kafka.CouchbaseSourceConnector'
+#        couchbase.persistence.polling.interval: '100ms'
+#       couchbase.bootstrap.timeout: '10s'
+#        tasks.max: '15'
+#       couchbase.env.timeout.kvTimeout: '10s'
+#       couchbase.log.document.lifecycle: 'false'
+#        couchbase.replicate.to: 'NONE'
+#       couchbase.seed.nodes: '<REPLACE WITH COUCHBASE SOURCE CLUSTER SEED NODES>'
+#       couchbase.source.handler: 'com.couchbase.connect.kafka.handler.source.RawJsonSourceHandler'
+#       couchbase.enable.tls: 'false'
+#        couchbase.bucket: '<REPLACE WITH COUCHBASE SOURCE BUCKET>'
+#        couchbase.flow.control.buffer: '16m'
+#        couchbase.stream.from: 'SAVED_OFFSET_OR_BEGINNING'
+#        couchbase.username: '<REPLACE WITH COUCHBASE USER USERNAME>'
+#        couchbase.event.filter: 'com.couchbase.connect.kafka.filter.AllPassFilter'
+#        couchbase.password: '<REPLACE WITH COUCHBASE USER PASSWORD>'
+#        value.converter: 'org.apache.kafka.connect.converters.ByteArrayConverter'
+#        key.converter: 'org.apache.kafka.connect.storage.StringConverter'
+#        couchbase.topic: 'couchbase-to-documentdb'
+#      ConnectorName: 'cfn-couchbase-source-connector'
+#      KafkaCluster: 
+#        ApacheKafkaCluster: 
+#          BootstrapServers: !Ref BootstrapServers
+#          Vpc:
+#            SecurityGroups:
+#              - !Ref SecurityGroupId
+#            Subnets: !Split [',', !Join [',', !Ref PrivateSubnets]]
+#      KafkaClusterClientAuthentication:
+#        AuthenticationType: 'IAM' 
+#      KafkaClusterEncryptionInTransit:
+#        EncryptionType: 'TLS' 
+#      KafkaConnectVersion: '2.7.1'
+#      LogDelivery:
+#        WorkerLogDelivery:
+#          CloudWatchLogs:
+#            Enabled: true
+#            LogGroup: '/couchbase/migration'
+#      Plugins: 
+#        - CustomPlugin:
+#            CustomPluginArn: !GetAtt CouchbaseCustomPlugin.CustomPluginArn
+#            Revision: !GetAtt CouchbaseCustomPlugin.Revision
+#      ServiceExecutionRoleArn: !Ref MigrationMSKRoleARN
