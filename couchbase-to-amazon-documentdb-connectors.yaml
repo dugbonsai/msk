@@ -44,19 +44,22 @@ Parameters:
       - 9
       - 10
   S3BucketName:
-    Description: Name of S3 bucket where MSK resources are stored.
+    Description: Name of S3 bucket to store resources needed for MSK  (output from couchbase-to-amazon-documentdb.yaml).
     Type: String
   BootstrapServers:
     Description: Comma-separated list of MSK cluster bootstrap servers. 
     Type: String
   SecurityGroupId:
-    Description: Security group ID for migration resources.
+    Description: Security group ID for migration resources (output from couchbase-to-amazon-documentdb.yaml).
     Type: String
   PrivateSubnets:
     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-supplied-parameter-types.html#cloudformation-supplied-parameter-types-overview
     Description: Select private subnets within the specified VPC.
     Type: List<AWS::EC2::Subnet::Id>
-    
+  MigrationMSKRoleARN:
+    Description: ARN of migration MSK IAM role (output from couchbase-to-amazon-documentdb.yaml).
+    Type: String
+
 Resources:
 # KafkaConnect resources
   DocumentDBCustomPlugin:
@@ -107,13 +110,13 @@ Resources:
         transforms.hk.type: 'org.apache.kafka.connect.transforms.HoistField$Key'
         config.providers: 's3import,ssm,sm'
         transforms.hk.field: '_id'
-        collection: '<REPLACE WITH TARGET COLLECTION NAME>'
+        collection: 'test'
         connection.ssl.truststore: '${s3import:us-west-2:dbonser-998564492370-cfn-testing/docdb-truststore.jks}'
         config.providers.s3import.param.region: 'us-west-2'
         key.converter.schemas.enable: 'false'
-        database: '<REPLACE WITH TARGET DATABASE NAME>'
+        database: 'test'
         document.id.strategy: 'com.mongodb.kafka.connect.sink.processor.id.strategy.ProvidedInKeyStrategy'
-        connection.uri: '<REPLACE WITH TARGET DOCUMENTDB CLUSTER CONNECTION STRING>'
+        connection.uri: 'mongodb://dbonser:password@cfn-documentdb-target.cluster-c9hsim63oezo.us-west-2.docdb.amazonaws.com:27017/?tls=true&tlsCAFile=global-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'
         value.converter.schemas.enable: 'false'
         errors.tolerance: 'all'
         value.converter: 'org.apache.kafka.connect.json.JsonConverter'
@@ -140,13 +143,9 @@ Resources:
             LogGroup: '/couchbase/migration'
       Plugins: 
         - CustomPlugin:
-            CustomPluginArn: 
-              - !GetAtt DocumentDBCustomPlugin.CustomPluginArn
-#            CustomPluginArn: 'arn:aws:kafkaconnect:us-west-2:998564492370:custom-plugin/cfn-documentdb-plugin/1160362e-0d12-4ae4-923b-10c69c34b293-3'
-            Revision: 
-              - !GetAtt DocumentDBCustomPlugin.Revision
-#           Revision: 1
-      ServiceExecutionRoleArn: 'arn:aws:iam::998564492370:role/cfn-migration-msk-role'
+            CustomPluginArn: !GetAtt DocumentDBCustomPlugin.CustomPluginArn
+            Revision: !GetAtt DocumentDBCustomPlugin.Revision
+      ServiceExecutionRoleArn: !Ref MigrationMSKRoleARN
 
   CouchbaseSourceConnector:
     DependsOn:
@@ -165,15 +164,15 @@ Resources:
         couchbase.env.timeout.kvTimeout: '10s'
         couchbase.log.document.lifecycle: 'false'
         couchbase.replicate.to: 'NONE'
-        couchbase.seed.nodes: '<REPLACE WITH SOURCE COUCHBASE CLUSTER SEED NODES>'
+        couchbase.seed.nodes: 'couchbase://10.0.130.123'
         couchbase.source.handler: 'com.couchbase.connect.kafka.handler.source.RawJsonSourceHandler'
         couchbase.enable.tls: 'false'
-        couchbase.bucket: '<REPLACE WITH SOURCE BUCKET>'
+        couchbase.bucket: 'bench'
         couchbase.flow.control.buffer: '16m'
         couchbase.stream.from: 'SAVED_OFFSET_OR_BEGINNING'
-        couchbase.username: '<REPLACE WITH USERNAME>'
+        couchbase.username: 'dbonser'
         couchbase.event.filter: 'com.couchbase.connect.kafka.filter.AllPassFilter'
-        couchbase.password: '<REPLACE WITH PASSWORD>'
+        couchbase.password: 'password'
         value.converter: 'org.apache.kafka.connect.converters.ByteArrayConverter'
         key.converter: 'org.apache.kafka.connect.storage.StringConverter'
         couchbase.topic: 'couchbase-to-documentdb'
@@ -197,10 +196,6 @@ Resources:
             LogGroup: '/couchbase/migration'
       Plugins: 
         - CustomPlugin:
-            CustomPluginArn: 
-              - !GetAtt CouchbaseCustomPlugin.CustomPluginArn
-#            CustomPluginArn: 'arn:aws:kafkaconnect:us-west-2:998564492370:custom-plugin/cfn-couchbase-plugin/e4addb27-aa0d-4191-a562-de29cff13bb4-3'
-            Revision: 
-              - !GetAtt CouchbaseCustomPlugin.Revision
-#            Revision: 1
-      ServiceExecutionRoleArn: 'arn:aws:iam::998564492370:role/cfn-migration-msk-role'
+            CustomPluginArn: !GetAtt CouchbaseCustomPlugin.CustomPluginArn
+            Revision: !GetAtt CouchbaseCustomPlugin.Revision
+      ServiceExecutionRoleArn: !Ref MigrationMSKRoleARN
